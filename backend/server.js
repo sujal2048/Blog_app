@@ -1,5 +1,6 @@
 const dotenv = require("dotenv").config();
 const express=require('express');
+const cors = require ("cors");
 const connectDB = require("./config/connectDB")
 const mongoose =require ("mongoose")
 
@@ -12,34 +13,31 @@ const multer = require("multer");
 const path = require("path");
 
 const app = express();
+app.use(cors());
 
 const port=process.env.PORT || 5000
-//
 
 dotenv;
 app.use(express.json());
-app.use("/images",express.static(path.join(__dirname,"/images")))
+app.use("/backend/images",express.static(path.join(__dirname,"/images")))
 
 
-//
-
+//mongo db
 mongoose
    .connect(process.env.MONGO_URI)   //application will only run it is connected to db
    .then( () => {
     app.listen(port, () => {
-        console.log(`Example app listening on port ${port}`)
+        console.log(`Backend app listening on port ${port}`)
         })
     })
     .catch((err) => console.log(err));
 
 
-//
 
-
-
+//disk storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, "images");
+      cb(null, "backend/images");
     },
     filename: (req, file, cb) => {
       cb(null, req.body.name);
@@ -51,14 +49,16 @@ const storage = multer.diskStorage({
     res.status(200).json("File has been uploaded");
   });
 
-app.use("/api/auth", authRoute);
+
+//routes
+app.use("/api/auth", authRoute);   
 app.use("/api/users", userRoute);
 app.use("/api/posts", postRoute);
 app.use("/api/categories", categoryRoute);
 
 
 
-//
+//test
 
 
 app.get('/hello', (req, res) => {
